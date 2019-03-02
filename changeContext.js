@@ -1,0 +1,45 @@
+var openWorkspace;
+var tabEvent;
+var closeWorkspace;
+
+
+function invoke(extension,acao,oldWS,newWS){
+    extension.getGlobalContext().then(function(globalContext) {
+        var param = {'acao': acao,'oldWS':oldWS,'newWS':newWS};
+        globalContext.invokeAction('changeContext', param)
+        .then(function(result) {})
+        .catch(function(error) {console.log(error);});
+    });
+} 
+
+ORACLE_SERVICE_CLOUD.extension_loader.load("changeContext" , "1.0")
+.then(function(extensionProvider)
+    {
+    extensionProvider.registerWorkspaceExtension(function(workspaceRecord)
+        {
+        	workspaceRecord.addRecordClosingListener(function closedWorkspace(closedContext) {
+                closeWorkspace = closedContext;
+                invoke(extensionProvider,
+                    closeWorkspace.event.event,
+                    closeWorkspace.oldWorkspace.objectId,
+                    closeWorkspace.newWorkspace.objectId);
+            });
+            workspaceRecord.addEditorLoadedListener(function loadedWorkspace(loadedParameter) {
+                openWorkspace = loadedParameter;
+                invoke(extensionProvider,
+                    openWorkspace.event.event,
+                    openWorkspace.oldWorkspace.objectId,
+                    openWorkspace.newWorkspace.objectId);
+            });
+
+            workspaceRecord.addCurrentEditorTabChangedListener(function tabChanged(tabchangedParam) {
+                tabEvent = tabchangedParam;
+                invoke(extensionProvider,
+                    tabEvent.event.event,
+                    tabEvent.oldWorkspace.objectId,
+                    tabEvent.newWorkspace.objectId);
+            });
+
+        }); 
+});
+
