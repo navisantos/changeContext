@@ -3,7 +3,9 @@ var tabEvent;
 var closeWorkspace;
 
 
-function invoke(extension,acao,oldWS,newWS){
+function invoke(extension,acao,oldWS,newWS,objectType){
+    if(objectType != 'Incident')
+        return;
     extension.getGlobalContext().then(function(globalContext) {
         var param = {'acao': acao,'oldWS':oldWS,'newWS':newWS};
         globalContext.invokeAction('changeContext', param)
@@ -23,7 +25,8 @@ ORACLE_SERVICE_CLOUD.extension_loader.load("changeContext" , "1.0")
                 invoke(extensionProvider,
                     closeWorkspace.event.event,
                     closeWorkspace.oldWorkspace.objectId,
-                    closeWorkspace.newWorkspace.objectId);
+                    closeWorkspace.newWorkspace.objectId,
+                    closeWorkspace.newWorkspace.objectType);
             });
             workspaceRecord.addEditorLoadedListener(function loadedWorkspace(loadedParameter) {
                 openWorkspace = loadedParameter;
@@ -31,7 +34,8 @@ ORACLE_SERVICE_CLOUD.extension_loader.load("changeContext" , "1.0")
                 invoke(extensionProvider,
                     openWorkspace.event.event,
                     openWorkspace.oldWorkspace.objectId,
-                    openWorkspace.newWorkspace.objectId);
+                    openWorkspace.newWorkspace.objectId,
+                    openWorkspace.newWorkspace.objectType);
             });
 
             workspaceRecord.addCurrentEditorTabChangedListener(function tabChanged(tabchangedParam) {
@@ -40,7 +44,8 @@ ORACLE_SERVICE_CLOUD.extension_loader.load("changeContext" , "1.0")
                 invoke(extensionProvider,
                     tabEvent.event.event,
                     tabEvent.oldWorkspace.objectId,
-                    tabEvent.newWorkspace.objectId);
+                    tabEvent.newWorkspace.objectId,
+                    tabEvent.newWorkspace.objectType);
             });
 
         }); 
